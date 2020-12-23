@@ -94,6 +94,15 @@ delete-all: delete delete-q1 delete-q2 delete-q3
 # Submit Docker
 q1-submit: q1.build
 	docker push $(Q1_IMAGE)
+.PHONY += q1-submit
+
+q2-submit: q2.build
+	docker push $(Q2_IMAGE)
+.PHONY += q2-submit
+
+q3-submit: q3.build
+	docker push $(Q3_IMAGE)
+.PHONY += q3-submit
 
 # SGE
 tmp.sh: base.build
