@@ -1,8 +1,8 @@
 # Variables
 DATE := $(shell date "+%y%m%d")
 RANDOM := $(shell bash -c 'echo $$RANDOM')
-CPUS = 10
-MEMS = 100G
+CPUS = 50
+MEMS = 500G
 PWD := $(shell pwd)
 TOOLS = 
 DOCKER = docker run --rm $(VOLUME_OPTS) $(RUN_OPTS) $(BASE_IMAGE)
@@ -128,3 +128,13 @@ Output/Step01/model.tar.gz: Python/step01.py Data/TIDEpy/model.pkl | Output/Step
 
 step01: Output/Step01/Gene_Ref.tar.gz
 .PHONY += step01
+
+# Step 02
+Output/Step02:
+	mkdir -p $@
+
+Output/Step02/Step02.tar.gz: Python/step02.py Data/expression_final.tsv Data/exp_TPM_final.tsv Data/Final_clin.tsv | Output/Step02 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
+
+step02: Output/Step02/Step02.tar.gz
+.PHONY += step02
