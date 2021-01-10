@@ -129,7 +129,7 @@ Output/Step01/model.tar.gz: Python/step01.py Data/TIDEpy/model.pkl | Output/Step
 step01: Output/Step01/Gene_Ref.tar.gz
 .PHONY += step01
 
-# Step 02
+# Step 02 (Clearify & Merge data)
 Output/Step02:
 	mkdir -p $@
 
@@ -138,3 +138,13 @@ Output/Step02/merged.tar.gz: Python/step02.py Data/expression_final.tsv Data/exp
 
 step02: Output/Step02/merged.tar.gz
 .PHONY += step02
+
+# Step 0-3 (Make t-SNE)
+Output/Step03:
+	mkdir -p $@
+
+Output/Step03/merged.png: Python/step03.py Output/Step02/merged.tar.gz | Output/Step03 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
+
+step03: Output/Step03/merged.png
+.PHONY += step03
