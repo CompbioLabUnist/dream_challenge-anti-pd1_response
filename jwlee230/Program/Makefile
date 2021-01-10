@@ -133,8 +133,8 @@ step01: Output/Step01/Gene_Ref.tar.gz
 Output/Step02:
 	mkdir -p $@
 
-Output/Step02/Step02.tar.gz: Python/step02.py Data/expression_final.tsv Data/exp_TPM_final.tsv Data/Final_clin.tsv | Output/Step02 base.build
+Output/Step02/merged.tar.gz: Python/step02.py Data/expression_final.tsv Data/exp_TPM_final.tsv Data/Final_clin.tsv | Output/Step02 base.build
 	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
 
-step02: Output/Step02/Step02.tar.gz
+step02: Output/Step02/merged.tar.gz
 .PHONY += step02

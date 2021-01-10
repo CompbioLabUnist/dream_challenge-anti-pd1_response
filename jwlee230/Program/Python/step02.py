@@ -4,15 +4,8 @@ step02.py:
 import argparse
 import math
 import typing
-import numpy
 import pandas
-import sklearn.ensemble
-import sklearn.linear_model
-import sklearn.metrics
-import sklearn.model_selection
-import sklearn.neighbors
-import sklearn.svm
-import sklearn.tree
+import step00
 
 
 def can_convert_to_float(value: typing.Any) -> bool:
@@ -66,7 +59,6 @@ if __name__ == "__main__":
     clinical_data = pandas.read_csv(args.clinical, sep="\t")
     clinical_data.set_index("WTS_ID", inplace=True)
     clinical_data.sort_index(axis="index", inplace=True)
-    clinical_data["TMB"] = list(map
 
     # intersect
     intersect_index = set(expression_data.index) & set(TPM_data.index) & set(clinical_data.index)
@@ -74,68 +66,21 @@ if __name__ == "__main__":
     TPM_data = TPM_data.loc[list(map(lambda x: x in intersect_index, list(TPM_data.index)))]
     clinical_data = clinical_data.loc[list(map(lambda x: x in intersect_index, list(clinical_data.index)))]
 
+    # clear clinical data
+    clinical_data["TMB"] = list(map(lambda x: float(x) if can_convert_to_float(x) else None, list(clinical_data["TMB"])))
+    clinical_data["IHC"] = list(map(lambda x: float(x) if (can_convert_to_float(x) or (x != x)) else float(x.split("/")[-1]), list(clinical_data["IHC"])))
+    clinical_data["sex"] = list(map(lambda x: {"1": "male", "2": "female", "male": "male", "female": "female"}[x], list(clinical_data["sex"])))
+    clinical_data["Tobacco"] = list(map(lambda x: {"0": "Never", "1": "Ex", "2": "Current", "Unknown": "Unknown"}[x], list(clinical_data["Tobacco"])))
+
     print(expression_data)
     print(TPM_data)
     print(clinical_data)
 
-    # make train data
-    known_index = list(map(can_convert_to_float, clinical_data["TMB"]))
-    known_data = pandas.concat([expression_data, TPM_data], axis="columns", verify_integrity=True)
-    known_data = known_data.loc[(known_index)]
-    known_answer = clinical_data.loc[(known_index)]["TMB"]
+    # merge
+    expression_data.columns = list(map(lambda x: "Expression_" + x, list(expression_data.columns)))
+    TPM_data.columns = list(map(lambda x: "TPM_" + x, list(TPM_data.columns)))
+    clinical_data.columns = list(map(lambda x: "Clinical_" + x, list(clinical_data.columns)))
+    output_data = pandas.concat([expression_data, TPM_data, clinical_data], axis="columns", join="inner", verify_integrity=True)
 
-    k_fold = sklearn.model_selection.KFold(n_splits=5)
-
-    # Mean
-    mean = numpy.mean(list(map(float, known_answer)))
-    print("Mean:", sklearn.metrics.r2_score(list(map(float, known_answer)), [mean for _ in known_answer]))
-
-    # Random Forest
-    RandomForest_regressor = sklearn.ensemble.RandomForestRegressor(max_features=None, random_state=0, n_jobs=args.cpus, bootstrap=False)
-    RandomForest_scores = list()
-    for train_index, test_index in k_fold.split(known_data):
-        x_train, x_test = known_data.iloc[train_index], known_data.iloc[test_index]
-        y_train, y_test = list(map(float, known_answer.iloc[train_index])), list(map(float, known_answer.iloc[test_index]))
-        RandomForest_regressor.fit(x_train, y_train)
-        RandomForest_scores.append(RandomForest_regressor.score(x_test, y_test))
-    print("RandomForest:", numpy.mean(RandomForest_scores), RandomForest_scores)
-
-    # K-neighbors
-    KNeighbors_regressor = sklearn.neighbors.KNeighborsRegressor(algorithm="brute", weights="distance", n_jobs=args.cpus)
-    KNeighbors_scores = list()
-    for train_index, test_index in k_fold.split(known_data):
-        x_train, x_test = known_data.iloc[train_index], known_data.iloc[test_index]
-        y_train, y_test = list(map(float, known_answer.iloc[train_index])), list(map(float, known_answer.iloc[test_index]))
-        KNeighbors_regressor.fit(x_train, y_train)
-        KNeighbors_scores.append(KNeighbors_regressor.score(x_test, y_test))
-    print("K-Neighbors:", numpy.mean(KNeighbors_scores), KNeighbors_scores)
-
-    # Linear SVR
-    linearSVR_regressor = sklearn.svm.SVR(kernel="linear", cache_size=400 * 1000)
-    linearSVR_scores = list()
-    for train_index, test_index in k_fold.split(known_data):
-        x_train, x_test = known_data.iloc[train_index], known_data.iloc[test_index]
-        y_train, y_test = list(map(float, known_answer.iloc[train_index])), list(map(float, known_answer.iloc[test_index]))
-        linearSVR_regressor.fit(x_train, y_train)
-        linearSVR_scores.append(linearSVR_regressor.score(x_test, y_test))
-    print("Linear SVR:", numpy.mean(linearSVR_scores), linearSVR_scores)
-
-    # SGD
-    SGD_regressor = sklearn.linear_model.SGDRegressor(max_iter=10 ** 8, random_state=0, learning_rate="optimal", early_stopping=True)
-    SGD_scores = list()
-    for train_index, test_index in k_fold.split(known_data):
-        x_train, x_test = known_data.iloc[train_index], known_data.iloc[test_index]
-        y_train, y_test = list(map(float, known_answer.iloc[train_index])), list(map(float, known_answer.iloc[test_index]))
-        SGD_regressor.fit(x_train, y_train)
-        SGD_scores.append(SGD_regressor.score(x_test, y_test))
-    print("SGD:", numpy.mean(SGD_scores), SGD_scores)
-
-    # Decision Tree
-    DecisionTree_regressor = sklearn.tree.DecisionTreeRegressor(max_features=None, random_state=0)
-    DecisionTree_scores = list()
-    for train_index, test_index in k_fold.split(known_data):
-        x_train, x_test = known_data.iloc[train_index], known_data.iloc[test_index]
-        y_train, y_test = list(map(float, known_answer.iloc[train_index])), list(map(float, known_answer.iloc[test_index]))
-        DecisionTree_regressor.fit(x_train, y_train)
-        DecisionTree_scores.append(DecisionTree_regressor.score(x_test, y_test))
-    print("Decision Tree:", numpy.mean(DecisionTree_scores), DecisionTree_scores)
+    print(output_data)
+    step00.make_pickle(args.output, output_data)
