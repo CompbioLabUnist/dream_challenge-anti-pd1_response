@@ -49,7 +49,7 @@ if __name__ == "__main__":
     # clear clinical data
     clinical_data["TMB"] = list(map(lambda x: float(x) if step00.can_convert_to_float(x) else None, list(clinical_data["TMB"])))
     clinical_data["IHC"] = list(map(lambda x: float(x) if (step00.can_convert_to_float(x) or (x != x)) else float(x.split("/")[-1]), list(clinical_data["IHC"])))
-    clinical_data["sex"] = list(map(lambda x: {"1": "M", "2": "f", "male": "M", "female": "F"}[x], list(clinical_data["sex"])))
+    clinical_data["sex"] = list(map(lambda x: {"1": "M", "2": "F", "male": "M", "female": "F"}[x], list(clinical_data["sex"])))
     clinical_data["Tobacco"] = list(map(lambda x: {"0": "NEVER", "Never": "NEVER", "1": "FORMER", "Ex": "FORMER", "2": "CURRENT", "Current": "CURRENT", "Unknown": "UNKNOWN"}[x], list(clinical_data["Tobacco"])))
     clinical_data.columns = list(map(lambda x: "Clinical_" + x, list(clinical_data.columns)))
 
