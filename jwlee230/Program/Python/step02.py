@@ -39,7 +39,6 @@ if __name__ == "__main__":
     clinical_data = pandas.read_csv(args.clinical, sep="\t")
     clinical_data.set_index("WTS_ID", inplace=True)
     clinical_data.sort_index(axis="index", inplace=True)
-    clinical_data.columns = list(map(lambda x: "Clinical_" + x, list(clinical_data.columns)))
 
     # intersect
     intersect_index = set(expression_data.index) & set(TPM_data.index) & set(clinical_data.index)
@@ -52,6 +51,7 @@ if __name__ == "__main__":
     clinical_data["IHC"] = list(map(lambda x: float(x) if (step00.can_convert_to_float(x) or (x != x)) else float(x.split("/")[-1]), list(clinical_data["IHC"])))
     clinical_data["sex"] = list(map(lambda x: {"1": "M", "2": "f", "male": "M", "female": "F"}[x], list(clinical_data["sex"])))
     clinical_data["Tobacco"] = list(map(lambda x: {"0": "NEVER", "Never": "NEVER", "1": "FORMER", "Ex": "FORMER", "2": "CURRENT", "Current": "CURRENT", "Unknown": "UNKNOWN"}[x], list(clinical_data["Tobacco"])))
+    clinical_data.columns = list(map(lambda x: "Clinical_" + x, list(clinical_data.columns)))
 
     print(expression_data)
     print(TPM_data)
