@@ -24,6 +24,7 @@ if __name__ == "__main__":
     clinical_data.set_index("patientID", inplace=True)
     clinical_data["ECOGPS"] = list(map(lambda x: float(x) if step00.can_convert_to_float(x) else None, list(clinical_data["ECOGPS"])))
     clinical_data["TMB"] = list(map(lambda x: float(x) if step00.can_convert_to_float(x) else None, list(clinical_data["TMB"])))
+    clinical_data.columns = list(map(lambda x: "Clinical_" + x, list(clinical_data.columns)))
     clinical_data.sort_index(axis="index", inplace=True)
 
     data_list = [clinical_data]

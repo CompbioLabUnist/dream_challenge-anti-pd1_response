@@ -121,10 +121,10 @@ Output/Step01:
 	mkdir -p $@
 
 Output/Step01/Gene_Ref.tar.gz: Python/step01.py Data/TIDEpy/Gene_Ref.pkl | Output/Step01 base.build
-	$(DOCKER) python3 $(addprefix /,$^ $@) 1> $@.stdout 2> $@.stderr
+	$(DOCKER) python3 $(addprefix /,$^ $@)
 
 Output/Step01/model.tar.gz: Python/step01.py Data/TIDEpy/model.pkl | Output/Step01 base.build
-	$(DOCKER) python3 $(addprefix /,$^ $@) 1> $@.stdout 2> $@.stderr
+	$(DOCKER) python3 $(addprefix /,$^ $@)
 
 step01: Output/Step01/Gene_Ref.tar.gz
 .PHONY += step01
@@ -144,7 +144,7 @@ Output/Step03:
 	mkdir -p $@
 
 Output/Step03/merged.png: Python/step03.py Output/Step02/merged.tar.gz | Output/Step03 base.build
-	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS) 1> $@.stdout 2> $@.stderr
+	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
 
 step03: Output/Step03/merged.png
 .PHONY += step03
@@ -157,3 +157,14 @@ Output/Step04/Synapse.tar.gz: Python/step04.py Data/SynapseData/clinical_data.cs
 	$(DOCKER) python3 $(addprefix /,$^ $@)
 
 step04: Output/Step04/Synapse.tar.gz
+.PHONY += step04
+
+# Step 05 (Make t-SNE with Synapse data)
+Output/Step05:
+	mkdir -p $@
+
+Output/Step05/Synapse.png: Python/step05.py Output/Step04/Synapse.tar.gz | Output/Step05 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
+
+step05: Output/Step05/Synapse.png
+.PHONY += step05
