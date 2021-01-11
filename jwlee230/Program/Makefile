@@ -121,10 +121,10 @@ Output/Step01:
 	mkdir -p $@
 
 Output/Step01/Gene_Ref.tar.gz: Python/step01.py Data/TIDEpy/Gene_Ref.pkl | Output/Step01 base.build
-	$(DOCKER) python3 $(addprefix /,$^ $@)
+	$(DOCKER) python3 $(addprefix /,$^ $@) 1> $@.stdout 2> $@.stderr
 
 Output/Step01/model.tar.gz: Python/step01.py Data/TIDEpy/model.pkl | Output/Step01 base.build
-	$(DOCKER) python3 $(addprefix /,$^ $@)
+	$(DOCKER) python3 $(addprefix /,$^ $@) 1> $@.stdout 2> $@.stderr
 
 step01: Output/Step01/Gene_Ref.tar.gz
 .PHONY += step01
@@ -134,17 +134,26 @@ Output/Step02:
 	mkdir -p $@
 
 Output/Step02/merged.tar.gz: Python/step02.py Data/expression_final.tsv Data/exp_TPM_final.tsv Data/Final_clin.tsv | Output/Step02 base.build
-	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
+	$(DOCKER) python3 $(addprefix /,$^ $@)
 
 step02: Output/Step02/merged.tar.gz
 .PHONY += step02
 
-# Step 0-3 (Make t-SNE)
+# Step 03 (Make t-SNE)
 Output/Step03:
 	mkdir -p $@
 
 Output/Step03/merged.png: Python/step03.py Output/Step02/merged.tar.gz | Output/Step03 base.build
-	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
+	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS) 1> $@.stdout 2> $@.stderr
 
 step03: Output/Step03/merged.png
 .PHONY += step03
+
+# Step 04 (Clearify & Merge Synapse Data)
+Output/Step04:
+	mkdir -p $@
+
+Output/Step04/Synapse.tar.gz: Python/step04.py Data/SynapseData/clinical_data.csv $(sort $(wildcard Data/SynapseData/GRCh37ERCC*.csv)) | Output/Step04 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@)
+
+step04: Output/Step04/Synapse.tar.gz

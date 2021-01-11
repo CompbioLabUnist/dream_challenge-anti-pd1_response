@@ -2,25 +2,8 @@
 step02.py: Clearify and Merge data
 """
 import argparse
-import math
-import typing
 import pandas
 import step00
-
-
-def can_convert_to_float(value: typing.Any) -> bool:
-    """
-    can_convert_to_float: determines whether the value cant be converted to a float
-    """
-    try:
-        float(value)
-    except ValueError:
-        return False
-
-    if math.isnan(float(value)):
-        return False
-    else:
-        return True
 
 
 if __name__ == "__main__":
@@ -30,7 +13,6 @@ if __name__ == "__main__":
     parser.add_argument("TPM", type=str, help="TPM TSV file")
     parser.add_argument("clinical", type=str, help="Clinical TSV file")
     parser.add_argument("output", type=str, help="Output TAR.gz file")
-    parser.add_argument("--cpus", type=int, default=1, help="CPU number to use")
 
     args = parser.parse_args()
 
@@ -40,8 +22,6 @@ if __name__ == "__main__":
         raise ValueError("TPM must end with .tsv!!")
     elif not args.clinical.endswith(".tsv"):
         raise ValueError("CLINICAL must end with .tsv!!")
-    elif args.cpus < 1:
-        raise ValueError("CPU must be greater that zero!!")
 
     # read data
     expression_data = pandas.read_csv(args.expression, sep="\t")
@@ -67,10 +47,10 @@ if __name__ == "__main__":
     clinical_data = clinical_data.loc[list(map(lambda x: x in intersect_index, list(clinical_data.index)))]
 
     # clear clinical data
-    clinical_data["TMB"] = list(map(lambda x: float(x) if can_convert_to_float(x) else None, list(clinical_data["TMB"])))
-    clinical_data["IHC"] = list(map(lambda x: float(x) if (can_convert_to_float(x) or (x != x)) else float(x.split("/")[-1]), list(clinical_data["IHC"])))
-    clinical_data["sex"] = list(map(lambda x: {"1": "male", "2": "female", "male": "male", "female": "female"}[x], list(clinical_data["sex"])))
-    clinical_data["Tobacco"] = list(map(lambda x: {"0": "Never", "1": "Ex", "2": "Current", "Unknown": "Unknown"}[x], list(clinical_data["Tobacco"])))
+    clinical_data["TMB"] = list(map(lambda x: float(x) if step00.can_convert_to_float(x) else None, list(clinical_data["TMB"])))
+    clinical_data["IHC"] = list(map(lambda x: float(x) if (step00.can_convert_to_float(x) or (x != x)) else float(x.split("/")[-1]), list(clinical_data["IHC"])))
+    clinical_data["sex"] = list(map(lambda x: {"1": "M", "2": "f", "male": "M", "female": "F"}[x], list(clinical_data["sex"])))
+    clinical_data["Tobacco"] = list(map(lambda x: {"0": "NEVER", "Never": "NEVER", "1": "FORMER", "Ex": "FORMER", "2": "CURRENT", "Current": "CURRENT", "Unknown": "UNKNOWN"}[x], list(clinical_data["Tobacco"])))
 
     print(expression_data)
     print(TPM_data)

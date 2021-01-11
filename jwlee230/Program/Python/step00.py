@@ -3,6 +3,7 @@ step00: for general purpose within all step
 """
 import hashlib
 import hmac
+import math
 import os
 import pickle
 import tarfile
@@ -76,3 +77,18 @@ def read_pickle(path: str) -> typing.Any:
         raise ValueError("Data is not valid")
 
     return pickle.loads(pkl)
+
+
+def can_convert_to_float(value: typing.Any) -> bool:
+    """
+    can_convert_to_float: determines whether the value cant be converted to a float
+    """
+    try:
+        float(value)
+    except ValueError:
+        return False
+
+    if math.isnan(float(value)):
+        return False
+    else:
+        return True
