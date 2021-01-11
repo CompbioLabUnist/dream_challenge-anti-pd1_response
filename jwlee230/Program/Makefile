@@ -143,10 +143,10 @@ step02: Output/Step02/merged.tar.gz
 Output/Step03:
 	mkdir -p $@
 
-Output/Step03/merged.png: Python/step03.py Output/Step02/merged.tar.gz | Output/Step03 base.build
+Output/Step03/%.png: Python/step03.py Output/Step02/merged.tar.gz | Output/Step03 base.build
 	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
 
-step03: Output/Step03/merged.png
+step03: Output/Step03/TMB.png Output/Step03/IHC.png
 .PHONY += step03
 
 # Step 04 (Clearify & Merge Synapse Data)
@@ -163,8 +163,8 @@ step04: Output/Step04/Synapse.tar.gz
 Output/Step05:
 	mkdir -p $@
 
-Output/Step05/Synapse.png: Python/step05.py Output/Step04/Synapse.tar.gz | Output/Step05 base.build
+Output/Step05/%.Synapse.png: Python/step05.py Output/Step04/Synapse.tar.gz | Output/Step05 base.build
 	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
 
-step05: Output/Step05/Synapse.png
+step05: Output/Step05/TMB.Synapse.png Output/Step05/PDL1.Synapse.png
 .PHONY += step05

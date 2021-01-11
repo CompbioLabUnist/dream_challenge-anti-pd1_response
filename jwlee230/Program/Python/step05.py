@@ -33,11 +33,12 @@ if __name__ == "__main__":
     for column in tsne_data.columns:
         tsne_data[column] = sklearn.preprocessing.scale(tsne_data[column])
 
-    tsne_data["TMB"] = list(data["Clinical_TMB"])
+    wanted_column = args.output.split("/")[-1].split(".")[0]
+    tsne_data[wanted_column] = list(data["Clinical_" + wanted_column])
     print(tsne_data)
 
     seaborn.set(context="poster", style="whitegrid")
     fig, ax = matplotlib.pyplot.subplots(figsize=(24, 24))
-    seaborn.scatterplot(data=tsne_data, x="TSNE1", y="TSNE2", hue="TMB", size="TMB", ax=ax, legend="brief")
+    seaborn.scatterplot(data=tsne_data, x="TSNE1", y="TSNE2", hue=wanted_column, size=wanted_column, ax=ax, legend="brief")
     fig.savefig(args.output)
     matplotlib.pyplot.close(fig)
