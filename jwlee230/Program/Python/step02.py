@@ -61,5 +61,5 @@ if __name__ == "__main__":
     output_data = pandas.concat([expression_data, TPM_data, clinical_data], axis="columns", join="inner", verify_integrity=True)
 
     print(output_data)
-    print(output_data.info())
+    output_data.info()
     step00.make_pickle(args.output, output_data)
