@@ -181,3 +181,13 @@ Output/Step06/imputed.Synapse.tar.gz: Python/step06.py Output/Step04/Synapse.tar
 
 step06: Output/Step06/imputed.tar.gz Output/Step06/imputed.Synapse.tar.gz
 .PHONY += step06
+
+# Step 07 (t-SNE with imputed data)
+Output/Step07:
+	mkdir -p $@
+
+Output/Step07/%.tar: Python/step07.py Output/Step06/%.tar.gz | Output/Step07 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@)
+
+step07: Output/Step07/imputed.tar Output/Step07/imputed.Synapse.tar
+.PHONY += step07
