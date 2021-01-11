@@ -1,5 +1,5 @@
 """
-step05: make t-SNE with Synapse data
+step05.py: make t-SNE with Synapse data
 """
 import argparse
 import matplotlib
