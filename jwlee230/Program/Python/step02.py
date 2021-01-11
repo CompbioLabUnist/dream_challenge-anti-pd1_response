@@ -39,6 +39,7 @@ if __name__ == "__main__":
     clinical_data = pandas.read_csv(args.clinical, sep="\t")
     clinical_data.set_index("WTS_ID", inplace=True)
     clinical_data.sort_index(axis="index", inplace=True)
+    clinical_data.columns = list(map(lambda x: "Clinical_" + x, list(clinical_data.columns)))
 
     # intersect
     intersect_index = set(expression_data.index) & set(TPM_data.index) & set(clinical_data.index)
@@ -57,9 +58,6 @@ if __name__ == "__main__":
     print(clinical_data)
 
     # merge
-    expression_data.columns = list(map(lambda x: "Expression_" + x, list(expression_data.columns)))
-    TPM_data.columns = list(map(lambda x: "TPM_" + x, list(TPM_data.columns)))
-    clinical_data.columns = list(map(lambda x: "Clinical_" + x, list(clinical_data.columns)))
     output_data = pandas.concat([expression_data, TPM_data, clinical_data], axis="columns", join="inner", verify_integrity=True)
 
     print(output_data)
