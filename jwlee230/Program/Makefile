@@ -168,3 +168,16 @@ Output/Step05/%.Synapse.png: Python/step05.py Output/Step04/Synapse.tar.gz | Out
 
 step05: Output/Step05/TMB.Synapse.png Output/Step05/PDL1.Synapse.png
 .PHONY += step05
+
+# Step 06 (Impute missing features)
+Output/Step06:
+	mkdir -p $@
+
+Output/Step06/imputed.tar.gz: Python/step06.py Output/Step02/merged.tar.gz | Output/Step06 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@)
+
+Output/Step06/imputed.Synapse.tar.gz: Python/step06.py Output/Step04/Synapse.tar.gz | Output/Step06 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@)
+
+step06: Output/Step06/imputed.tar.gz Output/Step06/imputed.Synapse.tar.gz
+.PHONY += step06
