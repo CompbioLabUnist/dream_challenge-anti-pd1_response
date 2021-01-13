@@ -191,3 +191,22 @@ Output/Step07/%.tar: Python/step07.py Output/Step06/%.tar.gz | Output/Step07 bas
 
 step07: Output/Step07/imputed.tar Output/Step07/imputed.Synapse.tar
 .PHONY += step07
+
+# Step 08 (get R2 score)
+Output/Step08:
+	mkdir -p $@
+
+Output/Step08/%.ours.not_imputed.tar.gz: Python/step08.py Output/Step02/merged.tar.gz | Output/Step08 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
+
+Output/Step08/%.ours.imputed.tar.gz: Python/step08.py Output/Step06/imputed.tar.gz | Output/Step08 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
+
+Output/Step08/%.Synapse.not_imputed.tar.gz: Python/step08.py Output/Step04/Synapse.tar.gz | Output/Step08 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
+
+Output/Step08/%.Synapse.imputed.tar.gz: Python/step08.py Output/Step06/imputed.Synapse.tar.gz | Output/Step08 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
+
+step08: Output/Step08/TMB.ours.not_imputed.tar.gz Output/Step08/IHC.ours.not_imputed.tar.gz Output/Step08/TMB.ours.imputed.tar.gz Output/Step08/IHC.ours.imputed.tar.gz Output/Step08/TMB.Synapse.not_imputed.tar.gz Output/Step08/PDL1.Synapse.not_imputed.tar.gz Output/Step08/TMB.Synapse.imputed.tar.gz Output/Step08/PDL1.Synapse.imputed.tar.gz
+.PHONY += step08
