@@ -1,8 +1,8 @@
 # Variables
 DATE := $(shell date "+%y%m%d")
 RANDOM := $(shell bash -c 'echo $$RANDOM')
-CPUS = 50
-MEMS = 500G
+CPUS = 10
+MEMS = 100G
 PWD := $(shell pwd)
 TOOLS = 
 DOCKER = docker run --rm $(VOLUME_OPTS) $(RUN_OPTS) $(BASE_IMAGE)
@@ -210,3 +210,13 @@ Output/Step08/%.Synapse.imputed.tar.gz: Python/step08.py Output/Step06/imputed.S
 
 step08: Output/Step08/TMB.ours.not_imputed.tar.gz Output/Step08/IHC.ours.not_imputed.tar.gz Output/Step08/TMB.ours.imputed.tar.gz Output/Step08/IHC.ours.imputed.tar.gz Output/Step08/TMB.Synapse.not_imputed.tar.gz Output/Step08/PDL1.Synapse.not_imputed.tar.gz Output/Step08/TMB.Synapse.imputed.tar.gz Output/Step08/PDL1.Synapse.imputed.tar.gz
 .PHONY += step08
+
+# Step 09 (t-SNE with R2-score data)
+Output/Step09:
+	mkdir -p $@
+
+Output/Step09/%.png: Python/step09.py Output/Step08/%.tar.gz | Output/Step09 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
+
+step09: Output/Step09/TMB.ours.not_imputed.png Output/Step09/IHC.ours.not_imputed.png Output/Step09/TMB.ours.imputed.png Output/Step09/IHC.ours.imputed.png Output/Step09/TMB.Synapse.not_imputed.png Output/Step09/PDL1.Synapse.not_imputed.png Output/Step09/TMB.Synapse.imputed.png Output/Step09/PDL1.Synapse.imputed.png
+.PHONY += step09
