@@ -220,3 +220,16 @@ Output/Step09/%.png: Python/step09.py Output/Step08/%.tar.gz | Output/Step09 bas
 
 step09: Output/Step09/TMB.ours.not_imputed.png Output/Step09/IHC.ours.not_imputed.png Output/Step09/TMB.ours.imputed.png Output/Step09/IHC.ours.imputed.png Output/Step09/TMB.Synapse.not_imputed.png Output/Step09/PDL1.Synapse.not_imputed.png Output/Step09/TMB.Synapse.imputed.png Output/Step09/PDL1.Synapse.imputed.png
 .PHONY += step09
+
+# Step 10 (Select & Merge columns)
+Output/Step10:
+	mkdir -p $@
+
+Output/Step10/TMB.selected.tar.gz: Python/step10.py Output/Step08/TMB.ours.imputed.tar.gz Output/Step08/TMB.Synapse.imputed.tar.gz | Output/Step10 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@)
+
+Output/Step10/PDL1.selected.tar.gz:  Python/step10.py Output/Step08/IHC.ours.imputed.tar.gz Output/Step08/PDL1.Synapse.imputed.tar.gz | Output/Step10 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@)
+
+step10: Output/Step10/TMB.selected.tar.gz Output/Step10/PDL1.selected.tar.gz
+.PHONY += step10
