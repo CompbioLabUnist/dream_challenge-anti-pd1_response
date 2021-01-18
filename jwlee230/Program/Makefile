@@ -113,7 +113,7 @@ run: tmp.sh | log Output
 .PHONY += run
 
 # Actual
-latest: step01
+latest: step10
 .PHONY += latest
 
 # Step 01 (Read data from TIDEpy)
@@ -229,6 +229,12 @@ Output/Step10/TMB.selected.tar.gz: Python/step10.py Output/Step08/TMB.ours.imput
 	$(DOCKER) python3 $(addprefix /,$^ $@)
 
 Output/Step10/PDL1.selected.tar.gz:  Python/step10.py Output/Step08/IHC.ours.imputed.tar.gz Output/Step08/PDL1.Synapse.imputed.tar.gz | Output/Step10 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@)
+
+Output/Step10/TMB.not_imputed.selected.tar.gz: Python/step10.py Output/Step08/TMB.ours.not_imputed.tar.gz Output/Step08/TMB.Synapse.not_imputed.tar.gz | Output/Step10 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@)
+
+Output/Step10/PDL1.not_imputed.selected.tar.gz:  Python/step10.py Output/Step08/IHC.ours.not_imputed.tar.gz Output/Step08/PDL1.Synapse.not_imputed.tar.gz | Output/Step10 base.build
 	$(DOCKER) python3 $(addprefix /,$^ $@)
 
 step10: Output/Step10/TMB.selected.tar.gz Output/Step10/PDL1.selected.tar.gz

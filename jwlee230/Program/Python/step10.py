@@ -26,21 +26,23 @@ if __name__ == "__main__":
     print(synapse_data)
 
     selected_columns = sorted(set(map(lambda x: x.split("_")[-1], list(our_data.columns))) & set(map(lambda x: x.split("_")[-1], list(synapse_data.columns))))
-    print("Selected:", len(selected_columns))
+    total_length = len(selected_columns)
+    print("Selected:", total_length)
 
     our_merge_data = pandas.DataFrame()
     for i, gene in enumerate(selected_columns):
-        print(i, len(selected_columns))
+        print(i, total_length, gene)
         our_merge_data[gene] = our_data[list(filter(lambda x: x.endswith(gene), list(our_data.columns)))].sum(axis=1)
     our_merge_data[wanted_column] = our_answer_data
     print(our_merge_data)
 
     synapse_merge_data = pandas.DataFrame()
     for i, gene in enumerate(selected_columns):
-        print(i, len(selected_columns))
+        print(i, total_length, gene)
         synapse_merge_data[gene] = synapse_data[list(filter(lambda x: x.endswith(gene), list(synapse_data.columns)))].sum(axis=1)
     synapse_merge_data[wanted_column] = synapse_answer_data
     print(synapse_merge_data)
 
-    output_data = pandas.concat([our_merge_data, our_merge_data], axis="index", join="inner", verify_integrity=True)
+    output_data = pandas.concat([our_merge_data, our_merge_data], axis="index", join="inner", ignore_index=True, verify_integrity=True)
     print(output_data)
+    step00.make_pickle(args.output, output_data)
