@@ -16,11 +16,13 @@ if __name__ == "__main__":
     wanted_column = args.output.split("/")[-1].split(".")[0]
 
     our_data = step00.read_pickle(args.ours)
+    our_data.dropna(axis="index", inplace=True)
     our_answer_data = our_data[list(filter(lambda x: x.startswith("Clinical_"), list(our_data.columns)))[0]]
     del our_data[list(filter(lambda x: x.startswith("Clinical_"), list(our_data.columns)))[0]]
     print(our_data)
 
     synapse_data = step00.read_pickle(args.synapse)
+    synapse_data.dropna(axis="index", inplace=True)
     synapse_answer_data = synapse_data[list(filter(lambda x: x.startswith("Clinical_"), list(synapse_data.columns)))[0]]
     del synapse_data[list(filter(lambda x: x.startswith("Clinical_"), list(synapse_data.columns)))[0]]
     print(synapse_data)
