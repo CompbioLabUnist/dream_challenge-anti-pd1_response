@@ -120,7 +120,7 @@ latest: step10
 Output/test:
 	mkdir -p $@
 
-q1-test: Python/q1-final.py Output/Step02/merged.tar.gz | Output/test base.build
+q1-test: Python/q1-final.py Output/Step08/PFS.ours.not_imputed.tar.gz | Output/test base.build
 	$(DOCKER) python3 $(addprefix /,$^)
 .PHONY += q1-test
 
