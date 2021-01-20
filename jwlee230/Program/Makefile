@@ -113,14 +113,14 @@ run: tmp.sh | log Output
 .PHONY += run
 
 # Actual
-latest: step10
+latest: step11
 .PHONY += latest
 
 # Test for submission
 Output/test:
 	mkdir -p $@
 
-q1-test: Python/q1-final.py Output/Step08/PFS.ours.not_imputed.tar.gz | Output/test base.build
+q1-test: Python/q1-final.py | Output/test base.build
 	$(DOCKER) python3 $(addprefix /,$^)
 .PHONY += q1-test
 
@@ -247,3 +247,13 @@ Output/Step10/PDL1.not_imputed.selected.tar.gz: Python/step10.py Output/Step08/I
 
 step10: Output/Step10/TMB.selected.tar.gz Output/Step10/PDL1.selected.tar.gz Output/Step10/TMB.not_imputed.selected.tar.gz Output/Step10/PDL1.not_imputed.selected.tar.gz
 .PHONY += step10
+
+# Step 11 (Build Random-Forest model)
+Output/Step11:
+	mkdir -p $@
+
+Output/Step11/%.RF.tar.gz: Python/step11.py Output/Step08/%.ours.not_imputed.tar.gz $(sort $(wildcard Data/SynapseData/GRCh37ERCC*.csv)) | Output/Step11 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
+
+step11: Output/Step11/PFS.RF.tar.gz Output/Step11/OS.RF.tar.gz
+.PHONY += step11
