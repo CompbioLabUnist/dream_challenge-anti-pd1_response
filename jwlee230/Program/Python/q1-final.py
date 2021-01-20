@@ -8,7 +8,6 @@ import step00
 if __name__ == "__main__":
     our_data = step00.read_pickle("/Output/Step08/PFS.ours.not_imputed.tar.gz")
     our_data.dropna(axis="index", inplace=True)
-    print(our_data)
 
     given_files = step00.file_list("/data")
 
@@ -40,13 +39,11 @@ if __name__ == "__main__":
     for i, gene in enumerate(selected_columns):
         print(i, total, gene)
         train_data[gene] = our_data[list(filter(lambda x: x.endswith(gene), list(our_data.columns)))].sum(axis=1)
-    print(train_data)
 
     test_data = pandas.DataFrame()
     for i, gene in enumerate(selected_columns):
         print(i, total, gene)
         test_data[gene] = given_data[list(filter(lambda x: x.endswith(gene), list(given_data.columns)))].sum(axis=1)
-    print(test_data)
 
     classifier = sklearn.ensemble.RandomForestClassifier(max_features=None, n_jobs=-1, random_state=0)
     classifier.fit(train_data, train_answer)
@@ -54,5 +51,4 @@ if __name__ == "__main__":
     answer_data = pandas.DataFrame()
     answer_data["patientID"] = list(test_data.index)
     answer_data["prediction"] = classifier.predict(test_data)
-    print(answer_data)
     answer_data.to_csv("/output/predictions.csv", index=False)
