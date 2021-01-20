@@ -15,7 +15,7 @@ Q3_IMAGE = docker.synapse.org/syn23664597/antipd1-q3-model:$(DATE)
 
 # Options
 RUN_OPTS = --tty --cpus="$(CPUS)" --memory="$(MEMS)"
-VOLUME_OPTS = --volume $(abspath Python):/Python --volume $(abspath Data):/Data:ro --volume $(abspath Output):/Output --volume $(abspath output):/output
+VOLUME_OPTS = --volume $(abspath Python):/Python --volume $(abspath Data):/Data:ro --volume $(abspath data):/data:ro --volume $(abspath Output):/Output --volume $(abspath output):/output
 
 # General
 all:
@@ -116,6 +116,14 @@ run: tmp.sh | log Output
 latest: step10
 .PHONY += latest
 
+# Test for submission
+Output/test:
+	mkdir -p $@
+
+q1-test: Python/q1-final.py Output/Step02/merged.tar.gz | Output/test base.build
+	$(DOCKER) python3 $(addprefix /,$^)
+.PHONY += q1-test
+
 # Step 01 (Read data from TIDEpy)
 Output/Step01:
 	mkdir -p $@
@@ -133,7 +141,7 @@ step01: Output/Step01/Gene_Ref.tar.gz
 Output/Step02:
 	mkdir -p $@
 
-Output/Step02/merged.tar.gz: Python/step02.py Data/expression_final.tsv Data/exp_TPM_final.tsv Data/Final_clin.tsv | Output/Step02 base.build
+Output/Step02/merged.tar.gz: Python/step02.py Data/expression_final.tsv Data/exp_TPM_final.tsv Data/Final_clin_JW.tsv | Output/Step02 base.build
 	$(DOCKER) python3 $(addprefix /,$^ $@)
 
 step02: Output/Step02/merged.tar.gz
@@ -208,7 +216,7 @@ Output/Step08/%.Synapse.not_imputed.tar.gz: Python/step08.py Output/Step04/Synap
 Output/Step08/%.Synapse.imputed.tar.gz: Python/step08.py Output/Step06/imputed.Synapse.tar.gz | Output/Step08 base.build
 	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
 
-step08: Output/Step08/TMB.ours.not_imputed.tar.gz Output/Step08/IHC.ours.not_imputed.tar.gz Output/Step08/TMB.ours.imputed.tar.gz Output/Step08/IHC.ours.imputed.tar.gz Output/Step08/TMB.Synapse.not_imputed.tar.gz Output/Step08/PDL1.Synapse.not_imputed.tar.gz Output/Step08/TMB.Synapse.imputed.tar.gz Output/Step08/PDL1.Synapse.imputed.tar.gz
+step08: Output/Step08/TMB.ours.not_imputed.tar.gz Output/Step08/IHC.ours.not_imputed.tar.gz Output/Step08/PFS.ours.not_imputed.tar.gz Output/Step08/OS.ours.not_imputed.tar.gz Output/Step08/TMB.ours.imputed.tar.gz Output/Step08/IHC.ours.imputed.tar.gz Output/Step08/PFS.ours.imputed.tar.gz Output/Step08/OS.ours.imputed.tar.gz Output/Step08/TMB.Synapse.not_imputed.tar.gz Output/Step08/PDL1.Synapse.not_imputed.tar.gz Output/Step08/TMB.Synapse.imputed.tar.gz Output/Step08/PDL1.Synapse.imputed.tar.gz
 .PHONY += step08
 
 # Step 09 (t-SNE with R2-score data)
@@ -228,14 +236,14 @@ Output/Step10:
 Output/Step10/TMB.selected.tar.gz: Python/step10.py Output/Step08/TMB.ours.imputed.tar.gz Output/Step08/TMB.Synapse.imputed.tar.gz | Output/Step10 base.build
 	$(DOCKER) python3 $(addprefix /,$^ $@)
 
-Output/Step10/PDL1.selected.tar.gz:  Python/step10.py Output/Step08/IHC.ours.imputed.tar.gz Output/Step08/PDL1.Synapse.imputed.tar.gz | Output/Step10 base.build
+Output/Step10/PDL1.selected.tar.gz: Python/step10.py Output/Step08/IHC.ours.imputed.tar.gz Output/Step08/PDL1.Synapse.imputed.tar.gz | Output/Step10 base.build
 	$(DOCKER) python3 $(addprefix /,$^ $@)
 
 Output/Step10/TMB.not_imputed.selected.tar.gz: Python/step10.py Output/Step08/TMB.ours.not_imputed.tar.gz Output/Step08/TMB.Synapse.not_imputed.tar.gz | Output/Step10 base.build
 	$(DOCKER) python3 $(addprefix /,$^ $@)
 
-Output/Step10/PDL1.not_imputed.selected.tar.gz:  Python/step10.py Output/Step08/IHC.ours.not_imputed.tar.gz Output/Step08/PDL1.Synapse.not_imputed.tar.gz | Output/Step10 base.build
+Output/Step10/PDL1.not_imputed.selected.tar.gz: Python/step10.py Output/Step08/IHC.ours.not_imputed.tar.gz Output/Step08/PDL1.Synapse.not_imputed.tar.gz | Output/Step10 base.build
 	$(DOCKER) python3 $(addprefix /,$^ $@)
 
-step10: Output/Step10/TMB.selected.tar.gz Output/Step10/PDL1.selected.tar.gz
+step10: Output/Step10/TMB.selected.tar.gz Output/Step10/PDL1.selected.tar.gz Output/Step10/TMB.not_imputed.selected.tar.gz Output/Step10/PDL1.not_imputed.selected.tar.gz
 .PHONY += step10

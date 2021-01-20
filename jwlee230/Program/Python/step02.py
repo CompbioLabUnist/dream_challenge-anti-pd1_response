@@ -29,16 +29,22 @@ if __name__ == "__main__":
     expression_data = expression_data.T
     expression_data.sort_index(axis="index", inplace=True)
     expression_data.columns = list(map(lambda x: "Expression_" + x, list(expression_data.columns)))
+    expression_data.dropna(axis="columns", how="all", inplace=True)
+    print(expression_data)
 
     TPM_data = pandas.read_csv(args.TPM, sep="\t")
     TPM_data.set_index("V1", inplace=True)
     TPM_data = TPM_data.T
     TPM_data.sort_index(axis="index", inplace=True)
     TPM_data.columns = list(map(lambda x: "TPM_" + x, list(TPM_data.columns)))
+    TPM_data.dropna(axis="columns", how="all", inplace=True)
+    print(TPM_data)
 
     clinical_data = pandas.read_csv(args.clinical, sep="\t")
     clinical_data.set_index("WTS_ID", inplace=True)
     clinical_data.sort_index(axis="index", inplace=True)
+    clinical_data.dropna(axis="columns", how="all", inplace=True)
+    print(clinical_data)
 
     # intersect
     intersect_index = set(expression_data.index) & set(TPM_data.index) & set(clinical_data.index)
