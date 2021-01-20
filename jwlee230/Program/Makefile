@@ -30,17 +30,17 @@ base.build: Dockerfile | Output output
 	docker images | grep $(BASE_IMAGE) && docker rmi $(BASE_IMAGE) || true
 	docker build --rm --tag $(BASE_IMAGE) . | tee $@
 
-q1.build: q1.Dockerfile base.build | Output output
+q1.build: q1.Dockerfile base.build Python/q1-final.py | Output output
 	rm -fv $@
 	docker images | grep $(Q1_IMAGE) && docker rmi $(Q1_IMAGE) || true
 	docker build --rm --tag $(Q1_IMAGE) --file $< . | tee $@
 
-q2.build: q2.Dockerfile base.build | Output output
+q2.build: q2.Dockerfile base.build Python/q2-final.py | Output output
 	rm -fv $@
 	docker images | grep $(Q2_IMAGE) && docker rmi $(Q2_IMAGE) || true
 	docker build --rm --tag $(Q2_IMAGE) --file $< . | tee $@
 
-q3.build: q3.Dockerfile base.build | Output output
+q3.build: q3.Dockerfile base.build Python/q3-final.py | Output output
 	rm -fv $@
 	docker images | grep $(Q3_IMAGE) && docker rmi $(Q3_IMAGE) || true
 	docker build --rm --tag $(Q3_IMAGE) --file $< . | tee $@
