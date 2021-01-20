@@ -252,7 +252,7 @@ step10: Output/Step10/TMB.selected.tar.gz Output/Step10/PDL1.selected.tar.gz Out
 Output/Step11:
 	mkdir -p $@
 
-Output/Step11/%.RF.tar.gz: Python/step11.py Output/Step08/%.ours.not_imputed.tar.gz Data/SynapseData/clinical_data.csv $(sort $(wildcard Data/SynapseData/GRCh37ERCC*.csv)) | Output/Step11 base.build
+Output/Step11/%.RF.tar.gz: Python/step11.py Output/Step08/%.ours.not_imputed.tar.gz Data/SynapseData/clinical_data.csv Data/SynapseData/GRCh37ERCC_ensembl75_isoforms_tpm.csv | Output/Step11 base.build
 	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
 
 step11: Output/Step11/PFS.RF.tar.gz Output/Step11/OS.RF.tar.gz
