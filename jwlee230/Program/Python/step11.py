@@ -13,13 +13,10 @@ if __name__ == "__main__":
     parser.add_argument("clinical", type=str, help="Clinical data CSV file")
     parser.add_argument("expression", type=str, help="Expression CSV file(s)", nargs="+")
     parser.add_argument("output", type=str, help="Output TAR.gz file")
-    parser.add_argument("--cpus", type=int, default=1, help="CPUS to use")
 
     args = parser.parse_args()
 
-    if args.cpus < 1:
-        raise ValueError("CPUS must be greater than zero!!")
-    elif not args.clinical.endswith(".csv"):
+    if not args.clinical.endswith(".csv"):
         raise ValueError("Clinical must end with CSV!!")
 
     our_data = step00.read_pickle(args.input)
@@ -45,6 +42,7 @@ if __name__ == "__main__":
 
     given_data = pandas.concat(data_list, axis="columns", join="inner", verify_integrity=True)
     given_data = given_data.select_dtypes(exclude="object")
+    given_data.info()
 
     selected_columns = sorted(set(map(lambda x: x.split("_")[-1], list(our_data.columns))) & set(map(lambda x: x.split("_")[-1], list(given_data.columns))))
     total = len(selected_columns)
@@ -57,6 +55,6 @@ if __name__ == "__main__":
         train_data[gene] = our_data[list(filter(lambda x: x.endswith(gene), list(our_data.columns)))].sum(axis=1)
     train_data.info()
 
-    regressor = sklearn.ensemble.RandomForestRegressor(max_features=None, n_jobs=args.cpus, random_state=0, bootstrap=False, oob_score=True, verbose=1)
+    regressor = sklearn.ensemble.RandomForestRegressor(max_features=None, n_jobs=1, random_state=0, bootstrap=False, verbose=1)
     regressor.fit(train_data, train_answer)
-    step00.make_pickle(args.output, regressor)
+    step00.make_pickle(args.output, {"columns": selected_columns, "regressor": regressor})

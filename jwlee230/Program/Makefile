@@ -53,9 +53,9 @@ build-all: base.build q1.build q2.build q3.build
 
 # Interactive
 interactive: base.build
-	$(DOCKER) --interactive $(BASE_IMAGE) /bin/bash || true
+	docker run --rm --interactive $(RUN_OPTS) $(BASE_IMAGE) /bin/bash || true
 
-q1-interactive: q1.build
+q1-interactive: q1.build Output/Step11/PFS.RF.tar.gz
 	docker run --rm $(RUN_OPTS) $(Q1_IMAGE)
 .PHONY += q1-interactive
 
@@ -115,14 +115,6 @@ run: tmp.sh | log Output
 # Actual
 latest: step11
 .PHONY += latest
-
-# Test for submission
-Output/test:
-	mkdir -p $@
-
-q1-test: Python/q1-final.py Output/Step11/PFS.RF.tar.gz | Output/test base.build
-	$(DOCKER) python3 $(addprefix /,$^)
-.PHONY += q1-test
 
 # Step 01 (Read data from TIDEpy)
 Output/Step01:
@@ -253,7 +245,7 @@ Output/Step11:
 	mkdir -p $@
 
 Output/Step11/%.RF.tar.gz: Python/step11.py Output/Step08/%.ours.not_imputed.tar.gz Data/SynapseData/clinical_data.csv Data/SynapseData/GRCh37ERCC_ensembl75_isoforms_tpm.csv | Output/Step11 base.build
-	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
+	$(DOCKER) python3 $(addprefix /,$^ $@)
 
 step11: Output/Step11/PFS.RF.tar.gz Output/Step11/OS.RF.tar.gz
 .PHONY += step11
