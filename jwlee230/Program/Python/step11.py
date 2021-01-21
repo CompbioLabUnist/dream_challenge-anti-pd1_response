@@ -57,6 +57,6 @@ if __name__ == "__main__":
         train_data[gene] = our_data[list(filter(lambda x: x.endswith(gene), list(our_data.columns)))].sum(axis=1)
     train_data.info()
 
-    classifier = sklearn.ensemble.RandomForestClassifier(max_features=None, n_jobs=args.cpus, random_state=0)
-    classifier.fit(train_data, train_answer)
-    step00.make_pickle(args.output, classifier)
+    regressor = sklearn.ensemble.RandomForestRegressor(max_features=None, n_jobs=args.cpus, random_state=0, bootstrap=False, oob_score=True, verbose=1)
+    regressor.fit(train_data, train_answer)
+    step00.make_pickle(args.output, regressor)

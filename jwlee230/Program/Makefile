@@ -92,7 +92,7 @@ delete-all: delete q1-delete q2-delete q3-delete
 .PHONY += delete-all
 
 # Submit Docker
-q1-submit: q1.build
+q1-submit: Python/q1-final.py Output/Step11/PFS.RF.tar.gz q1.build
 	docker push $(Q1_IMAGE)
 .PHONY += q1-submit
 
@@ -120,7 +120,7 @@ latest: step11
 Output/test:
 	mkdir -p $@
 
-q1-test: Python/q1-final.py | Output/test base.build
+q1-test: Python/q1-final.py Output/Step11/PFS.RF.tar.gz | Output/test base.build
 	$(DOCKER) python3 $(addprefix /,$^)
 .PHONY += q1-test
 
