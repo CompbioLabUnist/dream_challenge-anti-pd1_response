@@ -245,10 +245,10 @@ Output/Step11:
 	mkdir -p $@
 
 Output/Step11/%.RF.tar.gz: Python/step11.py Output/Step08/%.ours.not_imputed.tar.gz Data/SynapseData/clinical_data.csv Data/SynapseData/GRCh37ERCC_ensembl75_isoforms_tpm.csv | Output/Step11 base.build
-	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
+	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS) 1> $@.stdout 2> $@.stderr
 
 Output/Step11/%.RF.imputed.tar.gz: Python/step11.py Output/Step08/%.ours.imputed.tar.gz Data/SynapseData/clinical_data.csv Data/SynapseData/GRCh37ERCC_ensembl75_isoforms_tpm.csv | Output/Step11 base.build
-	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
+	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS) 1> $@.stdout 2> $@.stderr
 
 step11: Output/Step11/PFS.RF.tar.gz Output/Step11/OS.RF.tar.gz Output/Step11/PFS.RF.imputed.tar.gz Output/Step11/OS.RF.imputed.tar.gz
 .PHONY += step11
