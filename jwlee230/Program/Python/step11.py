@@ -51,6 +51,7 @@ if __name__ == "__main__":
     given_data.info()
 
     selected_columns = sorted(set(map(lambda x: x.split("_")[-1], list(our_data.columns))) & set(map(lambda x: x.split("_")[-1], list(given_data.columns))))
+    print("Total columns:", len(selected_columns))
 
     wanted_column = args.output.split("/")[-1].split(".")[0]
     train_data = pandas.DataFrame()
@@ -59,20 +60,36 @@ if __name__ == "__main__":
     train_data["answer"] = our_data["Clinical_" + wanted_column]
     train_data.info()
 
-    r2_scores = list()
-    kfold = sklearn.model_selection.KFold(n_splits=10)
-    regressor = sklearn.ensemble.RandomForestRegressor(max_features=None, n_jobs=args.cpus, random_state=0, bootstrap=False, verbose=1)
+    regressor = sklearn.ensemble.RandomForestRegressor(max_features=None, n_jobs=args.cpus, random_state=0, bootstrap=False)
+    while True:
+        tmp = len(selected_columns)
+        regressor.fit(train_data[selected_columns], train_data["answer"])
+        selected_columns = list(map(lambda x: x[1], sorted(filter(lambda x: x[0] > 0, list(zip(regressor.feature_importances_, selected_columns))), reverse=True)))
+        print("Selected columns:", len(selected_columns))
 
-    for train_index, test_index in kfold.split(train_data):
-        x_train, x_test = train_data.iloc[train_index][selected_columns], train_data.iloc[test_index][selected_columns]
-        y_train, y_test = train_data.iloc[train_index]["answer"], train_data.iloc[test_index]["answer"]
+        if tmp == len(selected_columns):
+            break
 
-        regressor.fit(x_train, y_train)
-        r2_scores.append(sklearn.metrics.r2_score(y_test, regressor.predict(x_test)))
+    best_num = None
+    best_mean = None
+    for i in range(1, len(selected_columns) + 1):
+        used_columns = selected_columns[:i]
 
-    print("Mean:", "%.3f" % numpy.mean(r2_scores))
-    print("STD:", "%.3f" % numpy.std(r2_scores))
+        r2_scores = list()
+        kfold = sklearn.model_selection.KFold(n_splits=5)
+        for train_index, test_index in kfold.split(train_data):
+            x_train, x_test = train_data.iloc[train_index][used_columns], train_data.iloc[test_index][used_columns]
+            y_train, y_test = train_data.iloc[train_index]["answer"], train_data.iloc[test_index]["answer"]
 
-    regressor = sklearn.ensemble.RandomForestRegressor(max_features=None, n_jobs=1, random_state=0, bootstrap=False, verbose=1)
-    regressor.fit(train_data[selected_columns], train_data["answer"])
-    step00.make_pickle(args.output, {"columns": selected_columns, "regressor": regressor})
+            regressor.fit(x_train, y_train)
+            r2_scores.append(sklearn.metrics.r2_score(y_test, regressor.predict(x_test)))
+
+        if (best_mean is None) or (best_mean < numpy.mean(r2_scores)):
+            best_num = i
+            best_mean = numpy.mean(r2_scores)
+
+    print("Highest mean:", best_mean, "with", best_num)
+
+    regressor = sklearn.ensemble.RandomForestRegressor(max_features=None, n_jobs=1, random_state=0, bootstrap=False)
+    regressor.fit(train_data[selected_columns[:best_num]], train_data["answer"])
+    step00.make_pickle(args.output, {"columns": selected_columns[:best_num], "regressor": regressor})
