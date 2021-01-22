@@ -56,15 +56,15 @@ interactive: base.build
 	docker run --rm --interactive $(RUN_OPTS) $(BASE_IMAGE) /bin/bash || true
 
 q1-interactive: q1.build Output/Step11/PFS.RF.tar.gz
-	docker run --rm $(RUN_OPTS) $(Q1_IMAGE)
+	docker run --rm $(RUN_OPTS) $(VOLUME_OPTS) $(Q1_IMAGE)
 .PHONY += q1-interactive
 
-q2-interactive: q2.build
-	docker run --rm $(RUN_OPTS) $(Q2_IMAGE)
+q2-interactive: q2.build Output/Step11/OS.RF.tar.gz
+	docker run --rm $(RUN_OPTS) $(VOLUME_OPTS) $(Q2_IMAGE)
 .PHONY += q2-interactive
 
 q3-interactive: q3.build
-	docker run --rm $(RUN_OPTS) $(Q3_IMAGE)
+	docker run --rm $(RUN_OPTS) $(VOLUME_OPTS) $(Q3_IMAGE)
 .PHONY += q3-interactive
 
 # Delete Docker Images
@@ -96,7 +96,7 @@ q1-submit: Python/q1-final.py Output/Step11/PFS.RF.tar.gz q1.build
 	docker push $(Q1_IMAGE)
 .PHONY += q1-submit
 
-q2-submit: q2.build
+q2-submit: Python/q2-final.py Output/Step11/OS.RF.tar.gz q2.build
 	docker push $(Q2_IMAGE)
 .PHONY += q2-submit
 
@@ -245,7 +245,10 @@ Output/Step11:
 	mkdir -p $@
 
 Output/Step11/%.RF.tar.gz: Python/step11.py Output/Step08/%.ours.not_imputed.tar.gz Data/SynapseData/clinical_data.csv Data/SynapseData/GRCh37ERCC_ensembl75_isoforms_tpm.csv | Output/Step11 base.build
-	$(DOCKER) python3 $(addprefix /,$^ $@)
+	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
+
+Output/Step11/%.RF.imputed.tar.gz: Python/step11.py Output/Step08/%.ours.imputed.tar.gz Data/SynapseData/clinical_data.csv Data/SynapseData/GRCh37ERCC_ensembl75_isoforms_tpm.csv | Output/Step11 base.build
+	$(DOCKER) python3 $(addprefix /,$^ $@) --cpus $(CPUS)
 
 step11: Output/Step11/PFS.RF.tar.gz Output/Step11/OS.RF.tar.gz
 .PHONY += step11
